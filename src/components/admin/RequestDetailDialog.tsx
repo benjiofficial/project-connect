@@ -17,7 +17,8 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { MessageSquare, Send, Loader2, User } from 'lucide-react';
+import { MessageSquare, Send, Loader2, User, Paperclip } from 'lucide-react';
+import { AttachmentList } from '@/components/dashboard/AttachmentList';
 
 interface ProjectRequest {
   id: string;
@@ -244,6 +245,17 @@ export function RequestDetailDialog({ request, onClose, onStatusChange, onRefres
                   </p>
                 </div>
               )}
+            </div>
+
+            <Separator />
+
+            {/* Attachments Section */}
+            <div>
+              <h4 className="font-semibold flex items-center gap-2 mb-4">
+                <Paperclip className="h-4 w-4" />
+                Attachments
+              </h4>
+              <AttachmentList requestId={request.id} canDelete={false} />
             </div>
 
             <Separator />
