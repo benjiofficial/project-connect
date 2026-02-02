@@ -171,7 +171,7 @@ export function AdminAuthForm() {
                     Creating account...
                   </>
                 ) : (
-                  'Request Admin Access'
+                  'Create Admin Account'
                 )}
               </Button>
             </form>
