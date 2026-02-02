@@ -39,12 +39,12 @@ export function AdminAuthForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await signUp(signupEmail, signupPassword, signupName);
+    const { error } = await signUp(signupEmail, signupPassword, signupName, true);
 
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success('Account created! Please check your email to verify, then contact a system administrator to grant admin access.');
+      toast.success('Admin account created! Please check your email to verify your account.');
     }
 
     setIsLoading(false);
@@ -174,9 +174,6 @@ export function AdminAuthForm() {
                   'Request Admin Access'
                 )}
               </Button>
-              <p className="text-xs text-center text-muted-foreground mt-2">
-                After signup, a system administrator must grant you admin privileges.
-              </p>
             </form>
           </TabsContent>
         </Tabs>
