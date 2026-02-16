@@ -79,8 +79,13 @@ export function AttachmentList({ requestId, canDelete = false, refreshKey = 0 }:
       return;
     }
 
-    // Open in new tab or trigger download
-    window.open(data.signedUrl, '_blank');
+    // Create a temporary anchor element to trigger download with the original filename
+    const link = document.createElement('a');
+    link.href = data.signedUrl;
+    link.download = attachment.file_name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleDelete = async (attachment: Attachment) => {
