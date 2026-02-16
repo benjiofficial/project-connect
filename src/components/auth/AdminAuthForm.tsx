@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock, Shield, User } from 'lucide-react';
+import { Loader2, Mail, Lock, User } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 export function AdminAuthForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,9 +54,7 @@ export function AdminAuthForm() {
   return (
     <Card className="w-full max-w-md border-border/50 shadow-xl">
       <CardHeader className="space-y-1 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-          <Shield className="h-7 w-7 text-primary" />
-        </div>
+        <img src={logo} alt="e-Crime Bureau" className="mx-auto mb-4 h-16 w-16 object-contain" />
         <CardTitle className="text-2xl font-display">Admin Access</CardTitle>
         <CardDescription>
           Authorized personnel only

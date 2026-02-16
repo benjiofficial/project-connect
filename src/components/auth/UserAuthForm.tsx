@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 export function UserAuthForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +54,7 @@ export function UserAuthForm() {
   return (
     <Card className="w-full max-w-md border-border/50 shadow-xl">
       <CardHeader className="space-y-1 text-center">
+        <img src={logo} alt="e-Crime Bureau" className="mx-auto mb-4 h-16 w-16 object-contain" />
         <CardTitle className="text-2xl font-display">Project Request Portal</CardTitle>
         <CardDescription>
           Submit and track your project requests

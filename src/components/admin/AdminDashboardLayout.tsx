@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { 
-  Shield, 
   LogOut,
   LayoutDashboard
 } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 interface AdminDashboardLayoutProps {
   children: ReactNode;
@@ -28,9 +28,7 @@ export function AdminDashboardLayout({ children }: AdminDashboardLayoutProps) {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-accent">
-                <Shield className="h-5 w-5 text-sidebar-primary" />
-              </div>
+              <img src={logo} alt="e-Crime Bureau" className="h-9 w-9 object-contain" />
               <span className="font-display text-lg font-semibold">
                 Admin Panel
               </span>

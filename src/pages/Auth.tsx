@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { UserAuthForm } from '@/components/auth/UserAuthForm';
-import { FileText } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 export default function Auth() {
   const { user, loading, role } = useAuth();
@@ -33,10 +33,8 @@ export default function Auth() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent/20" />
         <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
-              <FileText className="h-6 w-6" />
-            </div>
-            <span className="font-display text-xl font-semibold">ProjectHub</span>
+            <img src={logo} alt="e-Crime Bureau" className="h-12 w-12 object-contain" />
+            <span className="font-display text-xl font-semibold">e-Crime Bureau</span>
           </div>
           
           <div className="space-y-6">
@@ -64,7 +62,7 @@ export default function Auth() {
           </div>
           
           <p className="text-sm text-primary-foreground/60">
-            © 2024 ProjectHub. All rights reserved.
+            © 2024 e-Crime Bureau. All rights reserved.
           </p>
         </div>
       </div>

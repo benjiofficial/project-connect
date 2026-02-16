@@ -10,6 +10,7 @@ import {
   Users,
   Lock
 } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const Index = () => {
   return (
@@ -18,10 +19,8 @@ const Index = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <FileText className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-semibold">ProjectHub</span>
+            <img src={logo} alt="e-Crime Bureau" className="h-10 w-10 object-contain" />
+            <span className="font-display text-xl font-semibold">e-Crime Bureau</span>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/auth">
@@ -188,13 +187,11 @@ const Index = () => {
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <FileText className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span className="font-display font-semibold">ProjectHub</span>
+              <img src={logo} alt="e-Crime Bureau" className="h-8 w-8 object-contain" />
+              <span className="font-display font-semibold">e-Crime Bureau</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 ProjectHub. All rights reserved.
+              © 2024 e-Crime Bureau. All rights reserved.
             </p>
           </div>
         </div>
