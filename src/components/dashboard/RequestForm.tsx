@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, Send, FileText } from 'lucide-react';
+import { Loader2, Send, FileText, Paperclip, X, File } from 'lucide-react';
 
 const PROJECT_TYPES = [
   { id: 'research', label: 'Research' },
@@ -28,9 +28,28 @@ const DURATION_OPTIONS = [
   '6+ months',
 ];
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_TYPES = [
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain', 'text/csv'
+];
+
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
 export function RequestForm() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<{ file: File; id: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     projectTypes: [] as string[],
@@ -51,6 +70,63 @@ export function RequestForm() {
     }));
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles: { file: File; id: string }[] = [];
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast.error(`${file.name}: File type not allowed`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name}: File size exceeds 10MB limit`);
+        continue;
+      }
+      validFiles.push({ file, id: crypto.randomUUID() });
+    }
+    setPendingFiles(prev => [...prev, ...validFiles]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removePendingFile = (id: string) => {
+    setPendingFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const uploadFiles = async (requestId: string) => {
+    if (!user || pendingFiles.length === 0) return;
+
+    for (const { file } of pendingFiles) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${user.id}/${requestId}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('request-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
+        continue;
+      }
+
+      const { error: dbError } = await supabase
+        .from('request_attachments')
+        .insert({
+          request_id: requestId,
+          user_id: user.id,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          file_type: file.type,
+        });
+
+      if (dbError) {
+        toast.error(`Failed to save ${file.name}: ${dbError.message}`);
+        await supabase.storage.from('request-attachments').remove([filePath]);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -66,7 +142,7 @@ export function RequestForm() {
 
     setIsSubmitting(true);
 
-    const { error } = await supabase.from('project_requests').insert({
+    const { data, error } = await supabase.from('project_requests').insert({
       user_id: user.id,
       title: formData.title,
       project_types: formData.projectTypes,
@@ -76,24 +152,31 @@ export function RequestForm() {
       estimated_duration: formData.estimatedDuration || null,
       key_dependencies: formData.keyDependencies || null,
       confidentiality_level: formData.confidentialityLevel,
-    });
+    }).select('id').single();
 
     if (error) {
       toast.error('Failed to submit request: ' + error.message);
-    } else {
-      toast.success('Project request submitted successfully!');
-      setFormData({
-        title: '',
-        projectTypes: [],
-        strategicAlignment: '',
-        problemStatement: '',
-        expectedOutcomes: '',
-        estimatedDuration: '',
-        keyDependencies: '',
-        confidentialityLevel: 'internal',
-      });
+      setIsSubmitting(false);
+      return;
     }
 
+    // Upload attachments after request is created
+    if (pendingFiles.length > 0) {
+      await uploadFiles(data.id);
+    }
+
+    toast.success('Project request submitted successfully!');
+    setFormData({
+      title: '',
+      projectTypes: [],
+      strategicAlignment: '',
+      problemStatement: '',
+      expectedOutcomes: '',
+      estimatedDuration: '',
+      keyDependencies: '',
+      confidentialityLevel: 'internal',
+    });
+    setPendingFiles([]);
     setIsSubmitting(false);
   };
 
@@ -240,6 +323,62 @@ export function RequestForm() {
               onChange={(e) => setFormData({ ...formData, keyDependencies: e.target.value })}
               rows={3}
             />
+          </div>
+
+          {/* Attachments */}
+          <div className="space-y-3">
+            <Label>Attachments</Label>
+            <div className="flex items-center gap-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+                accept={ALLOWED_TYPES.join(',')}
+                disabled={isSubmitting}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSubmitting}
+                className="gap-2"
+              >
+                <Paperclip className="h-4 w-4" />
+                Add Files
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                Max 10MB per file. Images, PDFs, Office docs, text files.
+              </span>
+            </div>
+
+            {pendingFiles.length > 0 && (
+              <div className="space-y-2">
+                {pendingFiles.map(({ file, id }) => (
+                  <div
+                    key={id}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border"
+                  >
+                    <File className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{file.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removePendingFile(id)}
+                      disabled={isSubmitting}
+                      className="shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
