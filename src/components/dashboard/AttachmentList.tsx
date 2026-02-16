@@ -154,12 +154,13 @@ export function AttachmentList({ requestId, canDelete = false, refreshKey = 0 }:
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <Button
-                variant="ghost"
-                size="icon"
+                variant="outline"
+                size="sm"
                 onClick={() => handleDownload(attachment)}
-                title="Download"
+                className="gap-1.5"
               >
                 <Download className="h-4 w-4" />
+                Download
               </Button>
               {canDeleteThis && (
                 <Button
