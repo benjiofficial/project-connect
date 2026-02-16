@@ -4,13 +4,13 @@ import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { NotificationsPanel } from './NotificationsPanel';
 import { 
-  FileText, 
   LogOut, 
   Bell, 
   Menu,
   X,
   Home
 } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -34,11 +34,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={logo} alt="e-Crime Bureau" className="h-9 w-9 object-contain" />
               <span className="font-display text-lg font-semibold hidden sm:inline">
-                ProjectHub
+                e-Crime Bureau
               </span>
             </Link>
           </div>
